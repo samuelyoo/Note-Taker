@@ -17,7 +17,6 @@ app.get("/notes", function (req, res) {
 });
 
 
-
 app.get("/api/notes", function (req, res) {
     fs.readFile("./db/db.json", "utf8", function (error, data) {
         const notesArr = JSON.parse(data);
@@ -68,7 +67,6 @@ app.delete("/api/notes/:id", function(req, res) {
         })
     })
 });
-
 
 
 
