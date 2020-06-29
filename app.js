@@ -22,20 +22,32 @@ app.post('/api/notes', (req, res) => {
     res.json(notesArr);
 });
 
+// app.delete('/api/notes/:id', (req, res) => {
+//     // notesArr =[];
+//     let readFile = fs.readFileSync('db/db.json', 'utf-8');
+//     readFile = JSON.parse(readFile);
+
+//     let deleteFile = readFile.filter( (notes) => {
+//         return notes.id = req.params.id;
+//     });
+
+//     deleteFile = JSON.stringify(deleteFile);
+
+//     fs.writeFileSync('db/db.json', deleteFile);
+//     res.json(notesArr);
+// });
+
 app.delete('/api/notes/:id', (req, res) => {
-    notesArr =[];
-    let readFile = fs.readFileSync('db/db.json', 'utf-8');
-    readFile = JSON.parse(readFile);
-
-    let deleteFile = readFile.filter( (notes) => {
-        return notes.id = req.params.id;
-    });
-
-    deleteFile = JSON.stringify(deleteFile);
-
-    const writeFile = fs.writeFileSync('db/db.json', deleteFile);
-    res.json(notesArr);
-});
+    const id = req.params.id
+    const noteList = JSON.parse(fs.readFileSync('./db/db.json'))
+    noteList.splice(id,1)
+    noteList.forEach((item, index, arr)=>{
+        arr[index] = {...item, id:index}
+    })
+    
+    fs.writeFileSync('db/db.json', JSON.stringify(noteList))
+    res.send(noteList)
+})
 
 app.listen(PORT, () => {
     console.log("App listening on PORT " + PORT);
