@@ -29,7 +29,7 @@ demonstration will shown at below
 
 ## Sample
 
-![sample](Assets/demo_notetaker.gif)
+![sample](Assets/domo_notetaker.gif)
 
 
 ## Technologies
