@@ -7,48 +7,71 @@ app.use(express.urlencoded({ extended: true}));
 app.use(express.json());
 app.use(express.static('public'));
 
-let notesArr = [];
 
-app.get('/api/notes', (req, res) => {
-    let readFile = fs.readFileSync('db/db.json','utf-8');
-    readFile = JSON.parse(readFile);
-    res.json(readFile);
+app.get("/", function (req, res) {
+    res.sendFile(path.join(__dirname, "/public/index.html"));
 });
 
-app.post('/api/notes', (req, res) => {
-    let notes = req.body;
-    notesArr.push(notes);
-    fs.writeFileSync('db/db.json', JSON.stringify(notesArr) + "\n");
-    res.json(notesArr);
+app.get("/notes", function (req, res) {
+    res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
-// app.delete('/api/notes/:id', (req, res) => {
-//     // notesArr =[];
-//     let readFile = fs.readFileSync('db/db.json', 'utf-8');
-//     readFile = JSON.parse(readFile);
 
-//     let deleteFile = readFile.filter( (notes) => {
-//         return notes.id = req.params.id;
-//     });
 
-//     deleteFile = JSON.stringify(deleteFile);
-
-//     fs.writeFileSync('db/db.json', deleteFile);
-//     res.json(notesArr);
-// });
-
-app.delete('/api/notes/:id', (req, res) => {
-    const id = req.params.id
-    const noteList = JSON.parse(fs.readFileSync('./db/db.json'))
-    noteList.splice(id,1)
-    noteList.forEach((item, index, arr)=>{
-        arr[index] = {...item, id:index}
-    })
-    
-    fs.writeFileSync('db/db.json', JSON.stringify(noteList))
-    res.send(noteList)
+app.get("/api/notes", function (req, res) {
+    fs.readFile("./db/db.json", "utf8", function (error, data) {
+        const notesArr = JSON.parse(data);
+        res.json(notesArr)
+    });
 })
 
-app.listen(PORT, () => {
+
+
+app.post("/api/notes", function (req, res) {
+    const newnote = req.body;
+
+    fs.readFile("./db/db.json","utf8",function(error,data){
+        const noteList = JSON.parse(data)
+        if(noteList.length === 0){
+            newnote.id =1;
+        }else{
+            const lastnote = noteList[noteList.length-1]
+            newnote.id = lastnote.id +1
+        }
+
+        noteList.push(newnote);
+
+        fs.writeFile("./db/db.json",JSON.stringify(noteList),function(error,data){
+            if (error) {
+                return res.status(400)
+            }
+            res.json(newnote);
+        })
+    })
+});
+
+
+// ----delete-----
+app.delete("/api/notes/:id", function(req, res) {
+    const deleteID = parseInt(req.params.id)
+    // const id = req.params.id;
+    fs.readFile("./db/db.json", "utf8", function (error, data) {
+        const noteList = JSON.parse(data)
+        for(let i = 0; i < noteList.length; i++) {
+            if(noteList[i].id === deleteID) {
+                noteList.splice(i,1); 
+            }
+        }
+
+        fs.writeFile("./db/db.json", JSON.stringify(noteList), function(error, data) {
+            res.json(req.params.id); 
+        })
+    })
+});
+
+
+
+
+app.listen(PORT, function () {
     console.log("App listening on PORT " + PORT);
 });
